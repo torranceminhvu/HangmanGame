@@ -20,6 +20,8 @@ public class MainGUI extends javax.swing.JFrame {
     private LetterRack letterRack;
     private int imageCount;
     private boolean gameOver;
+    final int MAX_WORD_SIZE = 15;
+    final int MIN_WORD_SIZE = 3;
 
     /**
      * Creates new form MainGUI
@@ -33,6 +35,7 @@ public class MainGUI extends javax.swing.JFrame {
         gameOver = false;
         mysteryWordText.setText(letterRack.getMatchedSoFar());
         setGuessAvailText();
+        this.getRootPane().setDefaultButton(guessButton);
         this.setLocationRelativeTo(null);
     }
 
@@ -82,9 +85,21 @@ public class MainGUI extends javax.swing.JFrame {
 
         retryButton.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         retryButton.setText("Retry Game");
+        retryButton.setToolTipText("Restart The Game With The Same Word");
+        retryButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                retryButtonMouseClicked(evt);
+            }
+        });
 
         newGameButton.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         newGameButton.setText("New Game");
+        newGameButton.setToolTipText("Start A New Game With A New Word");
+        newGameButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                newGameButtonMouseClicked(evt);
+            }
+        });
 
         guessedLettersPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Guessed Letters", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 2, 12))); // NOI18N
 
@@ -135,6 +150,7 @@ public class MainGUI extends javax.swing.JFrame {
 
         guessButton.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         guessButton.setText("GUESS!");
+        guessButton.setToolTipText("Press To Play The Game");
         guessButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 guessButtonMouseClicked(evt);
@@ -167,7 +183,7 @@ public class MainGUI extends javax.swing.JFrame {
         mysteryWordText.setEditable(false);
         mysteryWordText.setBackground(new java.awt.Color(240, 240, 240));
         mysteryWordText.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        mysteryWordText.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        mysteryWordText.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jScrollPane4.setViewportView(mysteryWordText);
 
         infoText.setEditable(false);
@@ -178,20 +194,21 @@ public class MainGUI extends javax.swing.JFrame {
         mysteryWordPanel.setLayout(mysteryWordPanelLayout);
         mysteryWordPanelLayout.setHorizontalGroup(
             mysteryWordPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mysteryWordPanelLayout.createSequentialGroup()
+            .addGroup(mysteryWordPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(mysteryWordPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane6)
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
+                .addGroup(mysteryWordPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
+                    .addComponent(jScrollPane6))
                 .addContainerGap())
         );
         mysteryWordPanelLayout.setVerticalGroup(
             mysteryWordPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mysteryWordPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(20, 20, 20)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -297,6 +314,36 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_guessButtonMouseClicked
 
+    private void retryButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_retryButtonMouseClicked
+        int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to Reset?", "Confirmation", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            letterRack.reset();
+            reset();
+            JOptionPane.showMessageDialog(null, "The Game Has Been Reset!");
+        }
+    }//GEN-LAST:event_retryButtonMouseClicked
+
+    private void newGameButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newGameButtonMouseClicked
+        int check = JOptionPane.showConfirmDialog(null, "Are you sure you want to start a new game?", "Confirmation", JOptionPane.YES_NO_OPTION);
+        if (check == JOptionPane.YES_OPTION) {
+            JLabel jmystery = new JLabel("Please enter the word to be guessed! (No Spaces)");
+            JTextField mystery = new JPasswordField();
+            Object[] ob = {jmystery, mystery};
+            int result = JOptionPane.showConfirmDialog(null, ob, "Starting New Game...", JOptionPane.OK_CANCEL_OPTION);
+
+            if (result == JOptionPane.OK_OPTION) {
+                String word = mystery.getText().toLowerCase();
+                if (word.length() > MAX_WORD_SIZE || word.length() <= MIN_WORD_SIZE) {
+                    JOptionPane.showMessageDialog(null, "The inputted word must be more than 3 characters and less than 16 characters long!");
+                } else {
+                    letterRack.newGame(word);
+                    reset();
+                    JOptionPane.showMessageDialog(null, "A New Game Has Been Created!");
+                }
+            }
+        }
+    }//GEN-LAST:event_newGameButtonMouseClicked
+
     public String customAvailableText() {
         StringBuilder avail = new StringBuilder();
         for (int i = 0; i < letterRack.getAvailableLetters().length(); i++) {
@@ -330,32 +377,20 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }
 
+    public void reset() {
+        imageCount = 1;
+        gameOver = false;
+        setHangman();
+        setGuessAvailText();
+        mysteryWordText.setText(letterRack.getMatchedSoFar());
+        inputText.setText("");
+        infoText.setText("");
+    }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
         final int MAX_WORD_SIZE = 15;
         final int MIN_WORD_SIZE = 3;
 
@@ -377,7 +412,6 @@ public class MainGUI extends javax.swing.JFrame {
                 });
             }
         }
-
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
