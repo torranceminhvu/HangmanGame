@@ -26,7 +26,7 @@ public class LetterRack {
        
        StringBuilder temp = new StringBuilder();
        for (int i = 0; i < mystery.length(); i++) {
-           temp.append("_");
+           temp.append("*");
        }
        matchedSoFar = temp.toString();
    }
@@ -45,23 +45,27 @@ public class LetterRack {
    public void maskMystery() {
        StringBuilder temp = new StringBuilder();
        for (int i = 0; i < getMystery().length(); i++) {
-           temp.append("_");
+           temp.append("*");
        }
        matchCount = 0;
        matchedSoFar = temp.toString();
    }
    
-   public boolean guessChar (char c) {
+   public int guessChar (char c) {
        StringBuilder guessed = new StringBuilder(getGuessedLetters());
        StringBuilder available = new StringBuilder(getAvailableLetters());
        StringBuilder matched = new StringBuilder(getMatchedSoFar());
        int count = 0;
        
+       for (int i = 0; i < guessed.length(); i++) {
+           if (guessed.charAt(i) == c) {
+               return -1;
+           }
+       }
        // add guessed character to the end of guessed string
        guessed.append(c);
-       guessed.append(" ");
        
-       // remove geussed char from available string
+       // remove guessed char from available string
        for (int i = 0; i < available.length(); i++) {
            if (available.charAt(i) == c) {
                available.deleteCharAt(i);
@@ -83,9 +87,9 @@ public class LetterRack {
        matchedSoFar = matched.toString();
        
        if (count > 0) {
-           return true;
+           return 1;
        }
-       return false;
+       return 0;
    }
    
    public boolean guessWord (String w) {

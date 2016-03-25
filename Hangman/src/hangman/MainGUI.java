@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 public class MainGUI extends javax.swing.JFrame {
 
     private LetterRack letterRack;
+    private int imageCount;
     
     /**
      * Creates new form MainGUI
@@ -26,6 +27,10 @@ public class MainGUI extends javax.swing.JFrame {
     public MainGUI(String m) {
         initComponents();
         letterRack = new LetterRack(m);
+        imageCount = 1;
+        mysteryWordText.setText(letterRack.getMatchedSoFar());
+        availableLettersText.setText(customAvailableText());
+        guessedLettersText.setText(customGuessedText());
         this.setLocationRelativeTo(null);
     }
 
@@ -56,6 +61,8 @@ public class MainGUI extends javax.swing.JFrame {
         mysteryWordPanel = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         mysteryWordText = new javax.swing.JTextPane();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        infoText = new javax.swing.JTextPane();
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
@@ -156,16 +163,24 @@ public class MainGUI extends javax.swing.JFrame {
         mysteryWordPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Mystery Word", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 2, 16))); // NOI18N
 
         mysteryWordText.setEditable(false);
-        mysteryWordText.setFont(new java.awt.Font("Tahoma", 1, 28)); // NOI18N
+        mysteryWordText.setBackground(new java.awt.Color(240, 240, 240));
+        mysteryWordText.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        mysteryWordText.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
         jScrollPane4.setViewportView(mysteryWordText);
+
+        infoText.setEditable(false);
+        infoText.setBackground(new java.awt.Color(240, 240, 240));
+        jScrollPane6.setViewportView(infoText);
 
         javax.swing.GroupLayout mysteryWordPanelLayout = new javax.swing.GroupLayout(mysteryWordPanel);
         mysteryWordPanel.setLayout(mysteryWordPanelLayout);
         mysteryWordPanelLayout.setHorizontalGroup(
             mysteryWordPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mysteryWordPanelLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mysteryWordPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
+                .addGroup(mysteryWordPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane6)
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
                 .addContainerGap())
         );
         mysteryWordPanelLayout.setVerticalGroup(
@@ -173,7 +188,8 @@ public class MainGUI extends javax.swing.JFrame {
             .addGroup(mysteryWordPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(91, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -233,15 +249,62 @@ public class MainGUI extends javax.swing.JFrame {
 
     private void guessButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_guessButtonMouseClicked
         String guess = inputText.getText().toLowerCase();
+        // guessed word
         if (guess.length() > 1) {
             if (letterRack.guessWord(guess) == true) {
                 JOptionPane.showMessageDialog(null, "You've Guessed The Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
                 mysteryWordText.setText(letterRack.getMystery());
                 inputText.setText("");
+            } else {
+                //TODO: Change hangman pics
+            }
+        // guessed char
+        } else {
+            int check = letterRack.guessChar(guess.charAt(0));
+            // guessed correctly
+            if (check == 1) {
+                mysteryWordText.setText(letterRack.getMatchedSoFar());;
+                if (letterRack.isSolved() == true) {
+                    JOptionPane.showMessageDialog(null, "You've Matched The Whole Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
+                    mysteryWordText.setText(letterRack.getMystery());
+                    availableLettersText.setText(customAvailableText());
+                    guessedLettersText.setText(customGuessedText());
+                    inputText.setText("");
+                } else {
+                   infoText.setText("The Guessed Letter Has Matched, Please Continue!"); 
+                   availableLettersText.setText(customAvailableText());
+                   guessedLettersText.setText(customGuessedText());
+                   inputText.setText("");
+                }
+            // already guessed this character
+            } else if (check == -1) {
+                infoText.setText("The Guessed Letter Has Already Been Used, Please Select Another!"); 
+                inputText.setText("");
+            // guessed incorrectly
+            } else {
+                //TODO: change hangman pics
             }
         }
     }//GEN-LAST:event_guessButtonMouseClicked
 
+    public String customAvailableText () {
+        StringBuilder avail = new StringBuilder();
+        for (int i = 0 ; i < letterRack.getAvailableLetters().length() ; i++) {
+            avail.append(letterRack.getAvailableLetters().charAt(i));
+            avail.append(" ");
+        }
+        return avail.toString();
+    }
+    
+    public String customGuessedText () {
+        StringBuilder guessed = new StringBuilder();
+        for (int i = 0 ; i < letterRack.getGuessedLetters().length() ; i++) {
+            guessed.append(letterRack.getGuessedLetters().charAt(i));
+            guessed.append(" ");
+        }
+        return guessed.toString();
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -271,7 +334,7 @@ public class MainGUI extends javax.swing.JFrame {
         final int MAX_WORD_SIZE = 15;
         final int MIN_WORD_SIZE = 3;
         
-        JLabel jmystery = new JLabel("Please enter the word to be guessed!");
+        JLabel jmystery = new JLabel("Please enter the word to be guessed! (No Spaces)");
         JTextField mystery = new JPasswordField();
         Object[] ob = {jmystery, mystery};
         int result = JOptionPane.showConfirmDialog(null, ob, "Starting Game...", JOptionPane.OK_CANCEL_OPTION);
@@ -299,12 +362,14 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JPanel guessedLettersPanel;
     private javax.swing.JTextPane guessedLettersText;
     private javax.swing.JLabel hangmanLabel;
+    private javax.swing.JTextPane infoText;
     private javax.swing.JPanel inputPanel;
     private javax.swing.JTextField inputText;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JPanel mysteryWordPanel;
     private javax.swing.JTextPane mysteryWordText;
