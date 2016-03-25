@@ -17,9 +17,16 @@ import javax.swing.ImageIcon;
  */
 public class MainGUI extends javax.swing.JFrame {
 
+    /* Instance variable for letterRack */
     private LetterRack letterRack;
+
+    /* Keep track of what image the hangman is on */
     private int imageCount;
+
+    /* Keep track of when the game is over and need to be reset */
     private boolean gameOver;
+
+    /* CONST Vars */
     final int MAX_WORD_SIZE = 15;
     final int MIN_WORD_SIZE = 3;
 
@@ -30,6 +37,11 @@ public class MainGUI extends javax.swing.JFrame {
      */
     public MainGUI(String m) {
         initComponents();
+
+        /* set the mystery word to be m, and start the image on 2, and set
+        gameOver to be false, then display the masked mystery, avail, and guessed
+        word on the text
+         */
         letterRack = new LetterRack(m);
         imageCount = 2;
         gameOver = false;
@@ -265,19 +277,23 @@ public class MainGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    
+    /* Function that waits for mouse click on guessButton and check against 
+    mystery word and populate the textfields accordingly
+    */
     private void guessButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_guessButtonMouseClicked
         String guess = inputText.getText().toLowerCase();
         // checks if game needs to be restarted
         if (gameOver == false) {
             // guessed word
             if (guess.length() > 1) {
+                // check if the word matches the mystery word
                 if (letterRack.guessWord(guess) == true) {
                     JOptionPane.showMessageDialog(null, "You've Guessed The Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
                     mysteryWordText.setText(letterRack.getMystery());
                     inputText.setText("");
                     gameOver = true;
-                } else {
+                } else { // guessed wrong
                     setHangman();
                     infoText.setText("You've Guessed The Word Incorrectly! Please Try Again");
                     inputText.setText("");
@@ -288,23 +304,22 @@ public class MainGUI extends javax.swing.JFrame {
                 // guessed correctly
                 if (check == 1) {
                     mysteryWordText.setText(letterRack.getMatchedSoFar());;
+                    // check if the whole mystery word has all been matched 
                     if (letterRack.isSolved() == true) {
                         JOptionPane.showMessageDialog(null, "You've Matched The Whole Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
                         mysteryWordText.setText(letterRack.getMystery());
                         setGuessAvailText();
                         inputText.setText("");
                         gameOver = true;
-                    } else {
+                    } else { // Still more to be matched
                         infoText.setText("The Guessed Letter Has Been Matched, Please Continue!");
                         setGuessAvailText();
                         inputText.setText("");
                     }
-                    // already guessed this character
-                } else if (check == -1) {
+                } else if (check == -1) { // already guessed this character
                     infoText.setText("The Guessed Letter Has Already Been Used, Please Select Another!");
                     inputText.setText("");
-                    // guessed incorrectly
-                } else {
+                } else { // guessed incorrectly
                     setHangman();
                     setGuessAvailText();
                     infoText.setText("The Guessed Letter Is Not Correct! Please Try Again");
@@ -314,6 +329,9 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_guessButtonMouseClicked
 
+    /* Function that will check when mouse is pressed for retryButton it will
+    ask for a confirmation and if so reset the game with same mystery word
+    */
     private void retryButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_retryButtonMouseClicked
         int result = JOptionPane.showConfirmDialog(null, "Are you sure you want to Reset?", "Confirmation", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
@@ -323,6 +341,9 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_retryButtonMouseClicked
 
+    /* Function that will check when mouse is clicked for newGameButton and it will
+    ask for confirmation and display a new popup asking for the new mystery word
+    */
     private void newGameButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_newGameButtonMouseClicked
         int check = JOptionPane.showConfirmDialog(null, "Are you sure you want to start a new game?", "Confirmation", JOptionPane.YES_NO_OPTION);
         if (check == JOptionPane.YES_OPTION) {
@@ -331,6 +352,7 @@ public class MainGUI extends javax.swing.JFrame {
             Object[] ob = {jmystery, mystery};
             int result = JOptionPane.showConfirmDialog(null, ob, "Starting New Game...", JOptionPane.OK_CANCEL_OPTION);
 
+            // start new game with mystery as the new word to test against
             if (result == JOptionPane.OK_OPTION) {
                 String word = mystery.getText().toLowerCase();
                 if (word.length() > MAX_WORD_SIZE || word.length() <= MIN_WORD_SIZE) {
@@ -344,6 +366,7 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_newGameButtonMouseClicked
 
+    /* Display the availableLetters with a space in between each and make it uppercase */
     public String customAvailableText() {
         StringBuilder avail = new StringBuilder();
         for (int i = 0; i < letterRack.getAvailableLetters().length(); i++) {
@@ -353,6 +376,7 @@ public class MainGUI extends javax.swing.JFrame {
         return avail.toString().toUpperCase();
     }
 
+    /* Display the guessedLetters with a space in between each and make it uppercase */
     public String customGuessedText() {
         StringBuilder guessed = new StringBuilder();
         for (int i = 0; i < letterRack.getGuessedLetters().length(); i++) {
@@ -362,11 +386,13 @@ public class MainGUI extends javax.swing.JFrame {
         return guessed.toString().toUpperCase();
     }
 
+    /* call function to set both fields */
     public void setGuessAvailText() {
         availableLettersText.setText(customAvailableText());
         guessedLettersText.setText(customGuessedText());
     }
 
+    /* Use image count to change the label to desired image of hangman */
     public void setHangman() {
         hangmanLabel.setIcon(new ImageIcon(getClass().getResource("/hangman/images/hangman" + imageCount + ".png")));
         imageCount++;
@@ -377,6 +403,7 @@ public class MainGUI extends javax.swing.JFrame {
         }
     }
 
+    /* Function to reset variables and parameters to reset the game */
     public void reset() {
         imageCount = 1;
         gameOver = false;
@@ -391,6 +418,7 @@ public class MainGUI extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        // Const vars
         final int MAX_WORD_SIZE = 15;
         final int MIN_WORD_SIZE = 3;
 
@@ -399,11 +427,13 @@ public class MainGUI extends javax.swing.JFrame {
         Object[] ob = {jmystery, mystery};
         int result = JOptionPane.showConfirmDialog(null, ob, "Starting Game...", JOptionPane.OK_CANCEL_OPTION);
 
+        // starting game
         if (result == JOptionPane.OK_OPTION) {
             String word = mystery.getText().toLowerCase();
+            // check if input word satisfy requirement
             if (word.length() > MAX_WORD_SIZE || word.length() <= MIN_WORD_SIZE) {
                 JOptionPane.showMessageDialog(null, "The inputted word must be more than 3 characters and less than 16 characters long!");
-            } else {
+            } else { // satisfied so start the game
                 /* Create and display the form */
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     public void run() {
