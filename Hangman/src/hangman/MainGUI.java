@@ -1,5 +1,10 @@
 package hangman;
 
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
 /*
  *  Program created by Minh Vu
  * 
@@ -12,11 +17,15 @@ package hangman;
  */
 public class MainGUI extends javax.swing.JFrame {
 
+    private LetterRack letterRack;
+    
     /**
      * Creates new form MainGUI
+     * @param m
      */
-    public MainGUI() {
+    public MainGUI(String m) {
         initComponents();
+        letterRack = new LetterRack(m);
         this.setLocationRelativeTo(null);
     }
 
@@ -54,7 +63,6 @@ public class MainGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Hangman Game");
-        setPreferredSize(new java.awt.Dimension(700, 700));
         setResizable(false);
 
         hangmanLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/hangman/images/hangman1.png"))); // NOI18N
@@ -114,8 +122,15 @@ public class MainGUI extends javax.swing.JFrame {
 
         inputPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Enter A Letter Or Word To Guess, Then Hit the Button", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 3, 18))); // NOI18N
 
+        inputText.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+
         guessButton.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         guessButton.setText("GUESS!");
+        guessButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                guessButtonMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout inputPanelLayout = new javax.swing.GroupLayout(inputPanel);
         inputPanel.setLayout(inputPanelLayout);
@@ -141,6 +156,7 @@ public class MainGUI extends javax.swing.JFrame {
         mysteryWordPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Mystery Word", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 2, 16))); // NOI18N
 
         mysteryWordText.setEditable(false);
+        mysteryWordText.setFont(new java.awt.Font("Tahoma", 1, 28)); // NOI18N
         jScrollPane4.setViewportView(mysteryWordText);
 
         javax.swing.GroupLayout mysteryWordPanelLayout = new javax.swing.GroupLayout(mysteryWordPanel);
@@ -215,6 +231,17 @@ public class MainGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void guessButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_guessButtonMouseClicked
+        String guess = inputText.getText().toLowerCase();
+        if (guess.length() > 1) {
+            if (letterRack.guessWord(guess) == true) {
+                JOptionPane.showMessageDialog(null, "You've Guessed The Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
+                mysteryWordText.setText(letterRack.getMystery());
+                inputText.setText("");
+            }
+        }
+    }//GEN-LAST:event_guessButtonMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -241,13 +268,28 @@ public class MainGUI extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(MainGUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainGUI().setVisible(true);
+        final int MAX_WORD_SIZE = 15;
+        final int MIN_WORD_SIZE = 3;
+        
+        JLabel jmystery = new JLabel("Please enter the word to be guessed!");
+        JTextField mystery = new JPasswordField();
+        Object[] ob = {jmystery, mystery};
+        int result = JOptionPane.showConfirmDialog(null, ob, "Starting Game...", JOptionPane.OK_CANCEL_OPTION);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            String word = mystery.getText().toLowerCase();
+            if (word.length() > MAX_WORD_SIZE || word.length() <= MIN_WORD_SIZE) {
+                JOptionPane.showMessageDialog(null, "The inputted word must be more than 3 characters and less than 16 characters long!");
+            } else {
+                /* Create and display the form */
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        new MainGUI(word).setVisible(true);
+                    }
+                });
             }
-        });
+        }
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
