@@ -4,13 +4,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.ImageIcon;
 
 /*
  *  Program created by Minh Vu
  * 
  * 
  */
-
 /**
  *
  * @author Minh
@@ -19,18 +19,20 @@ public class MainGUI extends javax.swing.JFrame {
 
     private LetterRack letterRack;
     private int imageCount;
-    
+    private boolean gameOver;
+
     /**
      * Creates new form MainGUI
+     *
      * @param m
      */
     public MainGUI(String m) {
         initComponents();
         letterRack = new LetterRack(m);
-        imageCount = 1;
+        imageCount = 2;
+        gameOver = false;
         mysteryWordText.setText(letterRack.getMatchedSoFar());
-        availableLettersText.setText(customAvailableText());
-        guessedLettersText.setText(customGuessedText());
+        setGuessAvailText();
         this.setLocationRelativeTo(null);
     }
 
@@ -249,62 +251,85 @@ public class MainGUI extends javax.swing.JFrame {
 
     private void guessButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_guessButtonMouseClicked
         String guess = inputText.getText().toLowerCase();
-        // guessed word
-        if (guess.length() > 1) {
-            if (letterRack.guessWord(guess) == true) {
-                JOptionPane.showMessageDialog(null, "You've Guessed The Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
-                mysteryWordText.setText(letterRack.getMystery());
-                inputText.setText("");
-            } else {
-                //TODO: Change hangman pics
-            }
-        // guessed char
-        } else {
-            int check = letterRack.guessChar(guess.charAt(0));
-            // guessed correctly
-            if (check == 1) {
-                mysteryWordText.setText(letterRack.getMatchedSoFar());;
-                if (letterRack.isSolved() == true) {
-                    JOptionPane.showMessageDialog(null, "You've Matched The Whole Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
+        // checks if game needs to be restarted
+        if (gameOver == false) {
+            // guessed word
+            if (guess.length() > 1) {
+                if (letterRack.guessWord(guess) == true) {
+                    JOptionPane.showMessageDialog(null, "You've Guessed The Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
                     mysteryWordText.setText(letterRack.getMystery());
-                    availableLettersText.setText(customAvailableText());
-                    guessedLettersText.setText(customGuessedText());
                     inputText.setText("");
+                    gameOver = true;
                 } else {
-                   infoText.setText("The Guessed Letter Has Matched, Please Continue!"); 
-                   availableLettersText.setText(customAvailableText());
-                   guessedLettersText.setText(customGuessedText());
-                   inputText.setText("");
+                    setHangman();
+                    infoText.setText("You've Guessed The Word Incorrectly! Please Try Again");
+                    inputText.setText("");
                 }
-            // already guessed this character
-            } else if (check == -1) {
-                infoText.setText("The Guessed Letter Has Already Been Used, Please Select Another!"); 
-                inputText.setText("");
-            // guessed incorrectly
+                // guessed char
             } else {
-                //TODO: change hangman pics
+                int check = letterRack.guessChar(guess.charAt(0));
+                // guessed correctly
+                if (check == 1) {
+                    mysteryWordText.setText(letterRack.getMatchedSoFar());;
+                    if (letterRack.isSolved() == true) {
+                        JOptionPane.showMessageDialog(null, "You've Matched The Whole Word Correctly! Please Press The New Game Button to Start a New Game", "CORRECT!!!!", JOptionPane.INFORMATION_MESSAGE);
+                        mysteryWordText.setText(letterRack.getMystery());
+                        setGuessAvailText();
+                        inputText.setText("");
+                        gameOver = true;
+                    } else {
+                        infoText.setText("The Guessed Letter Has Been Matched, Please Continue!");
+                        setGuessAvailText();
+                        inputText.setText("");
+                    }
+                    // already guessed this character
+                } else if (check == -1) {
+                    infoText.setText("The Guessed Letter Has Already Been Used, Please Select Another!");
+                    inputText.setText("");
+                    // guessed incorrectly
+                } else {
+                    setHangman();
+                    setGuessAvailText();
+                    infoText.setText("The Guessed Letter Is Not Correct! Please Try Again");
+                    inputText.setText("");
+                }
             }
         }
     }//GEN-LAST:event_guessButtonMouseClicked
 
-    public String customAvailableText () {
+    public String customAvailableText() {
         StringBuilder avail = new StringBuilder();
-        for (int i = 0 ; i < letterRack.getAvailableLetters().length() ; i++) {
+        for (int i = 0; i < letterRack.getAvailableLetters().length(); i++) {
             avail.append(letterRack.getAvailableLetters().charAt(i));
             avail.append(" ");
         }
-        return avail.toString();
+        return avail.toString().toUpperCase();
     }
-    
-    public String customGuessedText () {
+
+    public String customGuessedText() {
         StringBuilder guessed = new StringBuilder();
-        for (int i = 0 ; i < letterRack.getGuessedLetters().length() ; i++) {
+        for (int i = 0; i < letterRack.getGuessedLetters().length(); i++) {
             guessed.append(letterRack.getGuessedLetters().charAt(i));
             guessed.append(" ");
         }
-        return guessed.toString();
+        return guessed.toString().toUpperCase();
     }
-    
+
+    public void setGuessAvailText() {
+        availableLettersText.setText(customAvailableText());
+        guessedLettersText.setText(customGuessedText());
+    }
+
+    public void setHangman() {
+        hangmanLabel.setIcon(new ImageIcon(getClass().getResource("/hangman/images/hangman" + imageCount + ".png")));
+        imageCount++;
+        if (imageCount > 7) {
+            gameOver = true;
+            JOptionPane.showMessageDialog(null, "Your Man Has Been Hanged!! Please Press the New Game Button To Start A New Game", "DEATH!!!!", JOptionPane.INFORMATION_MESSAGE);
+            infoText.setText("You've Lost The Game, Please Start A New Game!");
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -333,12 +358,12 @@ public class MainGUI extends javax.swing.JFrame {
         //</editor-fold>
         final int MAX_WORD_SIZE = 15;
         final int MIN_WORD_SIZE = 3;
-        
+
         JLabel jmystery = new JLabel("Please enter the word to be guessed! (No Spaces)");
         JTextField mystery = new JPasswordField();
         Object[] ob = {jmystery, mystery};
         int result = JOptionPane.showConfirmDialog(null, ob, "Starting Game...", JOptionPane.OK_CANCEL_OPTION);
-        
+
         if (result == JOptionPane.OK_OPTION) {
             String word = mystery.getText().toLowerCase();
             if (word.length() > MAX_WORD_SIZE || word.length() <= MIN_WORD_SIZE) {
@@ -352,7 +377,7 @@ public class MainGUI extends javax.swing.JFrame {
                 });
             }
         }
-        
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

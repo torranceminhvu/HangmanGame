@@ -16,7 +16,7 @@ public class LetterRack {
    private String guessedLetters;
    private String availableLetters;
    private int matchCount;
-   private final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+   private final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
    
    public LetterRack (String m) {
        mystery = m;
@@ -69,6 +69,7 @@ public class LetterRack {
        for (int i = 0; i < available.length(); i++) {
            if (available.charAt(i) == c) {
                available.deleteCharAt(i);
+               System.out.println("DELETED");
                break;
            }
        }
